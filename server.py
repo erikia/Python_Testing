@@ -49,33 +49,27 @@ def showSummary():
 
 @app.route('/book/<competition>/<club>')
 def book(competition,club):
-    try: 
-        foundClub = [c for c in clubs if c['name'] == club][0]
-        foundCompetition = [c for c in competitions if c['name'] == competition][0]
-        if foundClub and foundCompetition:
-            if not foundCompetition['over']:
-                return render_template('booking.html',club=foundClub,competition=foundCompetition)
-        flash("Something went wrong-please try again")
-        response = make_response(render_template('welcome.html', club=club, competitions=competitions))
-        return response, 403
-    except IndexError:
-        flash("Something went wrong-please try again")
-        response = make_response(render_template('index.html', club=club, competitions=competitions))
-        return response, 400
-        
+    foundClub = [c for c in clubs if c['name'] == club][0]
+    foundCompetition = [c for c in competitions if c['name'] == competition][0]
+    print(foundCompetition['over'])
+    if foundClub and foundCompetition:
+        if not foundCompetition['over']:
+            return render_template('booking.html',club=foundClub,competition=foundCompetition)
+    flash("Something went wrong-please try again")
+    response = make_response(render_template('welcome.html', club=club, competitions=competitions))
+    return response, 403
 
 
 @app.route('/purchasePlaces',methods=['POST'])
 def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
+    print(f"purchase {competition['over']} - {competition['name']}")
     if not competition['over']:
         placesRequired = int(request.form['places'])
         if placesRequired <= int(club["points"]):
             if placesRequired <= MAX_PLACES_PER_CLUB:
-                competition['numberOfPlaces'] = str(int(competition['numberOfPlaces'])-placesRequired)
-                club["points"] = str(int(club["points"]) - placesRequired)
-                print(type(club["points"]), club["points"], placesRequired)
+                competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
                 flash(f'Great-booking complete !')
                 return render_template('welcome.html', club=club, competitions=competitions)
             else:
