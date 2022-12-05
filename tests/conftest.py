@@ -6,19 +6,6 @@ from tests.dataset import Dataset
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
-from server import app
-from flask import template_rendered
-
-CLUB_1 = {"name": "Simply Lift", "email": "john@simplylift.co", "points": "15"}
-CLUB_2 = {"name": "Iron Temple", "email": "admin@irontemple.com", "points": "4"}
-COMPETITION_1 = {"name": "Spring Festival", "date": "2023-03-27 10:00:00", "numberOfPlaces": "25"}
-COMPETITION_2 = {"name": "Fall Classic", "date": "2020-10-22 13:30:00", "numberOfPlaces": "13"}
-MAX_PLACES_PER_CLUB = 12
-
-def captured_templates(app, recorded, **extra):
-    def record(sender, template, context):
-        recorded.append((template, context))
-    return template_rendered.connected_to(record, app)
 
 
 @pytest.fixture(scope="function")
@@ -92,3 +79,4 @@ def request_dataset(index_club, index_competition):
     club = dataset.clubs["clubs"][index_club]
     competition = dataset.competitions["competitions"][index_competition]
     return club, competition
+
