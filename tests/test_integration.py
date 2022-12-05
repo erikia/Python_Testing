@@ -2,7 +2,7 @@ from tests.conftest import request_dataset
 import server
 
 class TestIntegration:
-    def test_should_login_and_logout_with_good_email(self, template_info):
+    def test_login_and_logout_with_good_email(self, template_info):
         club, competition = request_dataset(0, 0)
         index_template, index_context, index_data = template_info("get", "/")
         assert index_template.name == 'index.html'
@@ -15,7 +15,7 @@ class TestIntegration:
         logout_template, logout_context, logout_data = template_info('get', '/logout', follow_redirects=True)
         assert logout_template.name == 'index.html'
 
-    def test_should_login_and_logout_with_bad_email(self, template_info):
+    def test_login_and_logout_with_bad_email(self, template_info):
         index_template, index_context, index_data = template_info("get", "/")
         assert index_template.name == 'index.html'
         login_template, login_context, login_data = template_info(
@@ -28,7 +28,7 @@ class TestIntegration:
         logout_template, logout_context, logout_data = template_info('get', '/logout', follow_redirects=True)
         assert logout_template.name == 'index.html'
 
-    def test_should_login_and_books_places(self, template_info):
+    def test_login_and_books_places(self, template_info):
         club, competition = request_dataset(0, 0)
         placesRequired = 1
         remaining_places = int(competition["numberOfPlaces"]) - placesRequired
@@ -71,7 +71,7 @@ class TestIntegration:
         assert 'Great-booking complete !' in purchase_data
         assert 'Number of Places: ' + str(remaining_places) in purchase_data
 
-    def test_should_login_and_books_places_with_not_enough_points(self, template_info):
+    def test_login_and_books_places_with_not_enough_points(self, template_info):
         club, competition = request_dataset(1, 0)
         placesRequired = 3
 

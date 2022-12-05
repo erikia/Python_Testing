@@ -6,7 +6,7 @@ from tests.dataset import Dataset
 
 class TestLogout:
 
-    def test_should_status_code_redirect(self, client):
+    def test_status_code_redirect(self, client):
         response = client.get('/logout', follow_redirects=True)
         assert response.status_code == 200
         data = response.data.decode()
@@ -15,14 +15,14 @@ class TestLogout:
 
 class TestIndex:
 
-    def test_index_should_status_code_ok_with_good_templates(self, template_info):
+    def test_index_status_code_ok(self, template_info):
         template, context, data = template_info("get", '/')
         assert template.name == 'index.html'
 
 
 class TestPointsBoardt:
 
-    def test_should_display_points_board_point(self, template_info):
+    def test_display_points_board(self, template_info):
 
         template, context, data = template_info(method="get", url='/points')
         assert template.name == 'board_point.html'
@@ -33,7 +33,7 @@ class TestPointsBoardt:
 
 class TestJson:
 
-    def test_loadClubs_should_get_clubs_data(self, monkeypatch):
+    def test_loadClubs(self, monkeypatch):
 
         def mock_get(*args, **kwargs):
             return Dataset().clubs
@@ -42,7 +42,7 @@ class TestJson:
         result = loadClubs()
         assert result == Dataset().clubs["clubs"]
 
-    def test_loadCompetition_should_get_competitions_data(self, monkeypatch):
+    def test_loadCompetition(self, monkeypatch):
 
         def mock_get(*args, **kwargs):
             return Dataset().competitions
@@ -54,7 +54,7 @@ class TestJson:
 
 class TestShowSummary:
 
-    def test_showsummary_should_status_code_ok_with_good_template(self, template_info):
+    def test_showsummary_status_code_ok(self, template_info):
         club, competition = request_dataset(0, 0)
         template, context, data = template_info(
                             "post",
@@ -62,7 +62,7 @@ class TestShowSummary:
                             data={'email': club['email']})
         assert template.name == 'welcome.html'
 
-    def test_showsummary_should_redirect_to_index_if_unknow_email(self, template_info):
+    def test_showsummary_redirect_to_index_if_unknow_email(self, template_info):
         template, context, data = template_info(
                             "post",
                             '/showSummary',
@@ -71,7 +71,7 @@ class TestShowSummary:
         assert template.name == 'index.html'
         assert "<li>Sorry, that email wasn&#39;t found.</li>" in data
 
-    def test_showsummary_should_undisplayed_booking_when_competition_is_over(self, client):
+    def test_showsummary_booking_when_competition_is_over(self, client):
         club, competition = request_dataset(0, 0)
         response = client.post(
             '/showSummary',
@@ -83,14 +83,14 @@ class TestShowSummary:
 
 class TestBook:
 
-    def test_book_should_status_code_ok_with_good_template(self, template_info):
+    def test_book_status_code_ok(self, template_info):
         club, competition = request_dataset(0, 0)
         template, context, data = template_info(
                             "get",
                             f"/book/{competition['name']}/{club['name']}")
         assert template.name == 'booking.html'
 
-    def test_book_should_redirect_to_welcome_if_bad_url(self, template_info):
+    def test_book_redirect_to_welcome_if_bad_url(self, template_info):
 
         template, context, data = template_info(
                             "get",
@@ -99,7 +99,7 @@ class TestBook:
         assert template.name == 'index.html'
         assert "Something went wrong-please try again" in data
 
-    def test_book_should_no_reservation_when_competition_is_over(self, template_info):
+    def test_book_reservation_when_competition_is_over(self, template_info):
         club, competition = request_dataset(0, 1)
         template, context, data = template_info(
                             "get",
@@ -111,7 +111,7 @@ class TestBook:
 
 class TestPurchasePlaces:
 
-    def test_should_status_code_ok_with_good_template(self, template_info):
+    def test_should_status_code_ok(self, template_info):
         club, competition = request_dataset(0, 0)
         placesRequired = 1
         template, context, data = template_info(
@@ -125,7 +125,7 @@ class TestPurchasePlaces:
 
         assert template.name == 'welcome.html'
 
-    def test_should_redirect_to_welcome_if_booking_is_more_than_available_points(self, client):
+    def test_redirect_when_books_more_than_available_points(self, client):
         club, competition = request_dataset(1, 0)
         placesRequired = 3
         rv = client.post(
@@ -139,7 +139,7 @@ class TestPurchasePlaces:
         data = rv.data.decode()
         assert "You should not book more than yours available points" in data
 
-    def test_should_redirect_to_welcome_if_club_books_more_than_12_places(self, client):
+    def test_redirect_when_club_books_more_than_12_places(self, client):
         server.COST_PLACE = 1
         club, competition = request_dataset(0, 0)
         placesRequired = 13
@@ -154,7 +154,7 @@ class TestPurchasePlaces:
         data = rv.data.decode()
         assert "You should book no more than 12 places per competition" in data
 
-    def test_should_redirect_to_welcome_if_club_books_on_past_competition(self, client):
+    def test_redirect_when_club_books_on_past_competition(self, client):
         club, competition = request_dataset(0, 1)
         placesRequired = 1
         rv = client.post(
@@ -168,7 +168,7 @@ class TestPurchasePlaces:
         data = rv.data.decode()
         assert "The competition is over, the booking is closed !" in data
 
-    def test_should_deducted_points_of_clubs_balance(self, template_info):
+    def test_deducted_points_of_clubs_balance(self, template_info):
         club, competition = request_dataset(0, 0)
         placesRequired = 1
         expected = int(club["points"]) - (server.COST_PLACE * placesRequired)
